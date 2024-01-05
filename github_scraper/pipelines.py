@@ -6,8 +6,9 @@
 
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
-from github_scraper.items import UserItem, ReadmeUserItem,RepositoryItem
+from github_scraper.items import UserItem, ReadmeUserItem,RepositoryItem, ReadmeRepositoryItem
 from scrapy.exceptions import DropItem
+from utils.magic_value import set_value, get_value
 
 class GithubScraperPipeline:
     def open_spider(self, spider):
@@ -39,9 +40,25 @@ class GithubScraperPipeline:
 
 
     def close_spider(self, spider):
-        print("")
+        print(self.__json)
 
-class StripStringsPipiline:
+class RepositoryPipeline:
+
+    content = ''
+
+    def process_item(self, item, spider):
+        if isinstance(item, ReadmeRepositoryItem):
+            set_value(item["about"])
+            print(f"about_set {get_value()}")
+
+        elif isinstance(item, RepositoryItem):
+            item["readme"] = get_value()
+            print(f'about_get {item["readme"]}')
+            set_value('')
+
+        return item
+
+class StripStringsPipeline:
     def process_item(self, item, spider):
         adapter = ItemAdapter(item)        
         names = adapter.field_names()

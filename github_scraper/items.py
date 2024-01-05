@@ -21,6 +21,9 @@ class UserItem(scrapy.Item):
 class ReadmeUserItem(scrapy.Item):
     about = scrapy.Field()
 
+class ReadmeRepositoryItem(scrapy.Item):
+    about = scrapy.Field()
+
 class RepositoryItem(scrapy.Item):
     url = scrapy.Field()
     name = scrapy.Field()

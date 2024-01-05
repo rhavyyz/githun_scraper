@@ -2,7 +2,7 @@ from typing import Iterable
 import scrapy
 from scrapy.http import Request
 
-from github_scraper.items import UserItem, ReadmeUserItem, RepositoryItem
+from github_scraper.items import UserItem, ReadmeUserItem, RepositoryItem, ReadmeRepositoryItem
 from utils.parse_repo_desciption import parse_repo_description
 
 
@@ -28,13 +28,24 @@ class GithubspiderSpider(scrapy.Spider):
     def parse_user_readme(self, response):
         content = response.css("body").get()[6:-7]
             
-            # content = ' '.join(content)
+        if content is None:
+            content = ''
 
         readme = ReadmeUserItem()
         readme["about"] = content
 
         yield readme
 
+    def parse_repo_readme(self, response):
+        content = response.css("body").get()[6:-7]
+            
+        if content is None:
+            content = ''
+
+        readme = ReadmeRepositoryItem()
+        readme["about"] = content
+
+        yield readme
 
 
     # ----------------------------
@@ -54,21 +65,6 @@ class GithubspiderSpider(scrapy.Spider):
 
     def parse_repo_page(self, response):
         repos = response.css("#user-repositories-list ul li")
-
-        content = ""
-
-        def parse_repo_readme(response):
-            nonlocal content
-            
-
-            content = response.css("body").get()
-
-            if content is None:
-                content = ""
-            else:
-                content = content[6:-7]
-
-
         for repo in repos:
             description, include, categories, priority  = parse_repo_description(repo.css("p ::text").get(), self.__ADD_IF_NOT_FOUND)
             if not include:
@@ -77,16 +73,13 @@ class GithubspiderSpider(scrapy.Spider):
             name = repo.css("h3 a ::text").get()
             relative_path = repo.css("h3 a ::attr(href)").get()
 
-            yield response.follow(self.readme_url(name), parse_repo_readme)
-
-            self.logger.warning("content: "+ content)
- 
-
             repository = RepositoryItem()
+
+            yield response.follow(self.readme_url(name), self.parse_repo_readme)
+
             repository["url"] = self.__BASE_URL + self.user + relative_path
             repository["name"] = name
             repository["description"] = description
-            repository["readme"] = content
             repository["priority"] = priority
             repository["categories"] = categories
 

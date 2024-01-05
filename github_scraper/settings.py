@@ -63,7 +63,8 @@ ROBOTSTXT_OBEY = True
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   "github_scraper.pipelines.StripStringsPipiline": 100,
+   "github_scraper.pipelines.StripStringsPipeline": 100,
+   "github_scraper.pipelines.RepositoryPipeline": 200,
    "github_scraper.pipelines.GithubScraperPipeline": 300,
 }
 
