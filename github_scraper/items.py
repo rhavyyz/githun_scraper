@@ -12,11 +12,19 @@ class GithubScraperItem(scrapy.Item):
     pass
 
 class UserItem(scrapy.Item):
-    name = scrapy.Field()
     nickname = scrapy.Field()
+    name = scrapy.Field()
     bio = scrapy.Field()
     about = scrapy.Field()
     picture_url = scrapy.Field()
     
-class ReadmeItem(scrapy.Item):
-    content = scrapy.Field()
+class ReadmeUserItem(scrapy.Item):
+    about = scrapy.Field()
+
+class RepositoryItem(scrapy.Item):
+    url = scrapy.Field()
+    name = scrapy.Field()
+    description = scrapy.Field()
+    readme = scrapy.Field()
+    priority = scrapy.Field()
+    categories = scrapy.Field()
