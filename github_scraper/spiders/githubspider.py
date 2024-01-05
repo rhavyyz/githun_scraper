@@ -80,7 +80,7 @@ class GithubspiderSpider(scrapy.Spider):
             yield response.follow(self.readme_url(name), parse_repo_readme)
 
             self.logger.warning("content: "+ content)
-
+ 
 
             repository = RepositoryItem()
             repository["url"] = self.__BASE_URL + self.user + relative_path
