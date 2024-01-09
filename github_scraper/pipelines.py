@@ -8,7 +8,8 @@
 from itemadapter import ItemAdapter
 from github_scraper.items import UserItem, ReadmeUserItem,RepositoryItem, ReadmeRepositoryItem
 from scrapy.exceptions import DropItem
-from utils.magic_value import set_value, get_value
+
+from utils.item_dict import item_to_dict
 
 class GithubScraperPipeline:
     def open_spider(self, spider):
@@ -17,6 +18,8 @@ class GithubScraperPipeline:
             "repositories": [],
             "categories": dict()
         }
+
+        self.__repo = dict()
 
 
     def process_item(self, item, spider):
@@ -30,33 +33,26 @@ class GithubScraperPipeline:
             for name in names:
                 self.__json["user"][name] = adapter.get(name)
 
-        if isinstance(item, RepositoryItem):
-            aux = dict()
-            for name in names:
-                aux[name] = adapter.get(name)
-            self.__json["repositories"].append(aux)
+        if isinstance(item, RepositoryItem) or isinstance(item, ReadmeRepositoryItem):
+            d = self.__repo.get(item["name"], None)
+
+            if d is None:
+                self.__repo[item["name"]] = item_to_dict(item)
+            else:
+                item_to_dict(item, d)
+
+
+            print("passou aquirrr", item)
 
         return item
 
 
     def close_spider(self, spider):
+
+        for repo in self.__repo.values():
+            self.__json["repositories"].append(repo)
+
         print(self.__json)
-
-class RepositoryPipeline:
-
-    content = ''
-
-    def process_item(self, item, spider):
-        if isinstance(item, ReadmeRepositoryItem):
-            set_value(item["about"])
-            print(f"about_set {get_value()}")
-
-        elif isinstance(item, RepositoryItem):
-            item["readme"] = get_value()
-            print(f'about_get {item["readme"]}')
-            set_value('')
-
-        return item
 
 class StripStringsPipeline:
     def process_item(self, item, spider):

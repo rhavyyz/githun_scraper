@@ -15,14 +15,15 @@ class UserItem(scrapy.Item):
     nickname = scrapy.Field()
     name = scrapy.Field()
     bio = scrapy.Field()
-    about = scrapy.Field()
+    readme = scrapy.Field()
     picture_url = scrapy.Field()
     
 class ReadmeUserItem(scrapy.Item):
-    about = scrapy.Field()
+    readme = scrapy.Field()
 
 class ReadmeRepositoryItem(scrapy.Item):
-    about = scrapy.Field()
+    readme = scrapy.Field()
+    name = scrapy.Field()
 
 class RepositoryItem(scrapy.Item):
     url = scrapy.Field()

@@ -32,7 +32,7 @@ class GithubspiderSpider(scrapy.Spider):
             content = ''
 
         readme = ReadmeUserItem()
-        readme["about"] = content
+        readme["readme"] = content
 
         yield readme
 
@@ -43,7 +43,8 @@ class GithubspiderSpider(scrapy.Spider):
             content = ''
 
         readme = ReadmeRepositoryItem()
-        readme["about"] = content
+        readme["readme"] = content
+        readme["name"] = response.request.url.split("/")[5]
 
         yield readme
 
