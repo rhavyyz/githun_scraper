@@ -85,3 +85,8 @@ class GithubspiderSpider(scrapy.Spider):
             repository["categories"] = categories
 
             yield repository
+        
+        relative_path = response.css("a.next_page::attr(href)").get()
+
+        if relative_path is not None:
+            response.follow(self.__BASE_URL + relative_path, self.parse_repo_page)

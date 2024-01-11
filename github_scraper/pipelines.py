@@ -9,6 +9,8 @@ from itemadapter import ItemAdapter
 from github_scraper.items import UserItem, ReadmeUserItem,RepositoryItem, ReadmeRepositoryItem
 from scrapy.exceptions import DropItem
 
+from functools import cmp_to_key
+
 from utils.item_dict import item_to_dict
 
 class GithubScraperPipeline:
@@ -41,18 +43,28 @@ class GithubScraperPipeline:
             else:
                 item_to_dict(item, d)
 
-
-            print("passou aquirrr", item)
-
         return item
 
 
     def close_spider(self, spider):
 
-        for repo in self.__repo.values():
-            self.__json["repositories"].append(repo)
+        self.__json["repositories"] = sorted(self.__repo.values(), key=cmp_to_key(lambda i1, i2 : i1["priority"] < i2["priority"]))
 
-        print(self.__json)
+        for pos, repo in enumerate(self.__json["repositories"]):
+            if "categories" in repo:
+                for category in repo["categories"]:
+                    if category in self.__json["categories"]:
+                        self.__json["categories"][category].append(pos)
+                    else:
+                        self.__json["categories"][category] = [pos]
+
+                del repo["categories"]
+            
+            if "priority" in repo: 
+                del repo["priority"]
+
+        print(f"\n\n\n\t JSON \n{self.__json}\n\t SIZE\n{len(self.__json['repositories'])}")
+
 
 class StripStringsPipeline:
     def process_item(self, item, spider):
@@ -62,6 +74,5 @@ class StripStringsPipeline:
         for name in names:
             if isinstance( adapter.get(name), str):
                 adapter[name] = adapter.get(name).strip()
-                # print(adapter.get(name))
         return item
 
