@@ -1,4 +1,4 @@
-from typing import Iterable
+from typing import Any, Iterable, Optional
 import scrapy
 from scrapy.http import Request
 
@@ -8,7 +8,6 @@ from utils.parse_repo_desciption import parse_repo_description
 
 class GithubspiderSpider(scrapy.Spider):
     __BASE_URL  = "https://github.com/"
-    user = "rhavyyz"
     __ADD_IF_NOT_FOUND = True
 
     # Assuming there always will be a main branch which is false
@@ -19,7 +18,10 @@ class GithubspiderSpider(scrapy.Spider):
     name = "githubspider"
     allowed_domains = ["github.com", "raw.githubusercontent.com"]
 
-
+    def __init__(self, user , name: str | None = None, **kwargs: Any):
+        super().__init__(name, **kwargs)
+        self.user = user
+        
     def start_requests(self) -> Iterable[Request]:
         return [Request(self.__BASE_URL + self.user, self.parse_profile)]
 

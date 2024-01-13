@@ -10,6 +10,7 @@ from github_scraper.items import UserItem, ReadmeUserItem,RepositoryItem, Readme
 from scrapy.exceptions import DropItem
 
 from functools import cmp_to_key
+import json
 
 from utils.item_dict import item_to_dict
 
@@ -48,7 +49,12 @@ class GithubScraperPipeline:
 
     def close_spider(self, spider):
 
-        self.__json["repositories"] = sorted(self.__repo.values(), key=cmp_to_key(lambda i1, i2 : i1["priority"] < i2["priority"]))
+        # print(f"REPOVIEW:\n{self.__repo}")
+
+        self.__json["repositories"] = sorted(list(self.__repo.values()), key=cmp_to_key(lambda i1, i2 : i1["priority"] < i2["priority"]))
+
+        # print(f"JSONVIEW:\n{self.__json['repositories']}")
+
 
         for pos, repo in enumerate(self.__json["repositories"]):
             if "categories" in repo:
@@ -63,7 +69,8 @@ class GithubScraperPipeline:
             if "priority" in repo: 
                 del repo["priority"]
 
-        print(f"\n\n\n\t JSON \n{self.__json}\n\t SIZE\n{len(self.__json['repositories'])}")
+        with open("output.json", "w+") as f:
+            json.dump(self.__json, f)
 
 
 class StripStringsPipeline:
